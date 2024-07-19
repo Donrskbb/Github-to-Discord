@@ -1,5 +1,3 @@
-// util.js
-
 const { inspect } = require('node:util');
 
 const color = {
