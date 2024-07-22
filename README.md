@@ -14,4 +14,5 @@ Added to create the appropriate embed message based on the event type.
 - `star:` Handles repository starring events.
 - `fork:` Handles repository forking events.
 
-Repo will be updated 20-7-24
+Last update: `19/07/'24`
+Next update: `23/07/'24`
