@@ -13,8 +13,6 @@ const language = JSON.parse(
   fs.readFileSync(`./language/${LANGUAGES}.json`, "utf-8")
 );
 
-let language_select = LANGUAGES === "eng" ? "English" : "Nederlands";
-
 const app = express();
 const PORT = Port || 40125;
 
@@ -66,37 +64,30 @@ function sendDiscordWebhook(payload) {
 }
 
 // Function to create embed message for Discord based on GitHub event
-// Function to create embed message for Discord based on GitHub event
 function createEmbed(eventType, payload) {
-  let embeds = [];
-
   switch (eventType) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits) {
         const commits = payload.commits;
+        const fields = commits.map(commit => ({
+          name: commit.message,
+          value: `Commit by ${commit.author.name}`,
+          inline: false,
+        }));
 
-        for (let i = 0; i < commits.length; i += 25) {
-          const commitBatch = commits.slice(i, i + 25);
-          const fields = commitBatch.map((commit) => ({
-            name: commit.message,
-            value: `Commit by ${commit.author.name}`,
-            inline: false,
-          }));
-
-          embeds.push({
-            title: `Push Event: ${payload.pusher.name}`,
-            description: `New push to ${payload.repository.name}`,
-            color: 0x7289da,
-            fields: fields,
-            footer: {
-              text: `Repository: ${payload.repository.name}`,
-            },
-            author: {
-              name: payload.pusher.name,
-              icon_url: payload.pusher.avatar_url,
-            },
-          });
-        }
+        return {
+          title: `Push Event: ${payload.pusher.name}`,
+          description: `New push to ${payload.repository.name}`,
+          color: 0x7289da,
+          fields: fields,
+          footer: {
+            text: `Repository: ${payload.repository.name}`,
+          },
+          author: {
+            name: payload.pusher.name,
+            icon_url: payload.pusher.avatar_url || null,
+          },
+        };
       }
       break;
 
@@ -111,7 +102,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.issue.user.login,
-            icon_url: payload.issue.user.avatar_url,
+            icon_url: payload.issue.user.avatar_url || null,
           },
           url: payload.issue.html_url,
         };
@@ -129,7 +120,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
-            icon_url: payload.comment.user.avatar_url,
+            icon_url: payload.comment.user.avatar_url || null,
           },
           url: payload.comment.html_url,
         };
@@ -149,7 +140,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.pull_request.user.login,
-            icon_url: payload.pull_request.user.avatar_url,
+            icon_url: payload.pull_request.user.avatar_url || null,
           },
           url: payload.pull_request.html_url,
         };
@@ -167,7 +158,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.review.user.login,
-            icon_url: payload.review.user.avatar_url,
+            icon_url: payload.review.user.avatar_url || null,
           },
           url: payload.review.html_url,
         };
@@ -185,7 +176,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
-            icon_url: payload.comment.user.avatar_url,
+            icon_url: payload.comment.user.avatar_url || null,
           },
           url: payload.comment.html_url,
         };
@@ -203,7 +194,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url,
+            icon_url: payload.sender.avatar_url || null,
           },
           url: payload.repository.html_url,
         };
@@ -221,7 +212,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url,
+            icon_url: payload.sender.avatar_url || null,
           },
           url: payload.forkee.html_url,
         };
@@ -229,12 +220,7 @@ function createEmbed(eventType, payload) {
       break;
 
     case "create":
-      if (
-        payload.ref &&
-        payload.ref_type &&
-        payload.repository &&
-        payload.sender
-      ) {
+      if (payload.ref && payload.ref_type && payload.repository && payload.sender) {
         return {
           title: `Created ${payload.ref_type}: ${payload.ref}`,
           description: `${payload.sender.login} created a new ${payload.ref_type}.`,
@@ -244,7 +230,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url,
+            icon_url: payload.sender.avatar_url || null,
           },
           url: payload.repository.html_url,
         };
@@ -252,12 +238,7 @@ function createEmbed(eventType, payload) {
       break;
 
     case "delete":
-      if (
-        payload.ref &&
-        payload.ref_type &&
-        payload.repository &&
-        payload.sender
-      ) {
+      if (payload.ref && payload.ref_type && payload.repository && payload.sender) {
         return {
           title: `Deleted ${payload.ref_type}: ${payload.ref}`,
           description: `${payload.sender.login} deleted the ${payload.ref_type}.`,
@@ -267,7 +248,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url,
+            icon_url: payload.sender.avatar_url || null,
           },
           url: payload.repository.html_url,
         };
@@ -285,7 +266,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.release.author.login,
-            icon_url: payload.release.author.avatar_url,
+            icon_url: payload.release.author.avatar_url || null,
           },
           url: payload.release.html_url,
         };
@@ -303,7 +284,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url,
+            icon_url: payload.sender.avatar_url || null,
           },
           url: payload.repository.html_url,
         };
@@ -321,7 +302,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.member.login,
-            icon_url: payload.member.avatar_url,
+            icon_url: payload.member.avatar_url || null,
           },
           url: payload.repository.html_url,
         };
@@ -334,16 +315,6 @@ function createEmbed(eventType, payload) {
       );
       return null;
   }
-
-  if (embeds.length === 0) {
-    log.error(
-      `${language.webhook_default_event_log_4} ${eventType} ${language.webhook_default_event_log_5} ${payload.action || ''} ${language.webhook_default_event_log_6}`
-    );
-    return null;
-  }
-
-  // Return the embed payload only if it's not empty
-  return embeds.length > 0 ? { embeds: embeds } : null;
 }
 
 // Function to check BranchStatus and event status
@@ -403,7 +374,7 @@ app.get("/webhook", (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`online`);
-  log.debug(`${language.select_language} [ ${language_select} ]`);
+  log.debug(`${language.select_language} [ ${LANGUAGES === "eng" ? "English" : "Nederlands"} ]`);
   log.debug(`${language.webhook_start_running}: [ ${PORT} ]`);
   log.debug(
     `${language.webhook_start_listening} [ ${WebHookUrl}:${PORT}/webhook ]`
