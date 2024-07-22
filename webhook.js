@@ -74,22 +74,23 @@ function createEmbed(eventType, payload) {
     color: 0x7289da,
     footer: { text: '' },
     author: { name: '', icon_url: githubLogoUrl },
-    url: null
+    url: null,
+    fields: []
   };
 
   switch (eventType) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits && payload.commits.length > 0) {
         embed.title = `Push Event: ${payload.pusher.name}`;
-        embed.description = `New push to ${payload.repository.name}`;
+        embed.description = `New push to **${payload.repository.name}**\n\n**Commits:**`;
         embed.fields = payload.commits.map(commit => ({
           name: commit.message,
-          value: `Commit by ${commit.author.name}`,
+          value: `\`\`\`Author: ${commit.author.name}\nCommit ID: ${commit.id}\`\`\``,
           inline: false,
         }));
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.pusher.name;
-        embed.author.icon_url = payload.pusher.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.pusher.avatar_url || githubLogoUrl;
         embed.url = payload.repository.html_url;
         break;
       }
@@ -98,10 +99,10 @@ function createEmbed(eventType, payload) {
     case "issues":
       if (payload.action && payload.issue && payload.repository) {
         embed.title = `Issue ${payload.action}: ${payload.issue.title}`;
-        embed.description = payload.issue.body || "No description provided.";
+        embed.description = `${payload.issue.body ? payload.issue.body : "No description provided."}\n\n**Issue ID:** \`${payload.issue.id}\``;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.issue.user.login;
-        embed.author.icon_url = payload.issue.user.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.issue.user.avatar_url || githubLogoUrl;
         embed.url = payload.issue.html_url;
         break;
       }
@@ -110,10 +111,10 @@ function createEmbed(eventType, payload) {
     case "issue_comment":
       if (payload.issue && payload.comment && payload.repository) {
         embed.title = `New comment on issue: ${payload.issue.title}`;
-        embed.description = payload.comment.body || "No comment body.";
+        embed.description = `${payload.comment.body ? payload.comment.body : "No comment body."}\n\n**Comment ID:** \`${payload.comment.id}\``;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.comment.user.login;
-        embed.author.icon_url = payload.comment.user.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.comment.user.avatar_url || githubLogoUrl;
         embed.url = payload.comment.html_url;
         break;
       }
@@ -122,12 +123,10 @@ function createEmbed(eventType, payload) {
     case "pull_request":
       if (payload.action && payload.pull_request && payload.repository) {
         embed.title = `Pull Request ${payload.action}: ${payload.pull_request.title}`;
-        embed.description = payload.pull_request.body
-          ? payload.pull_request.body.slice(0, 1024)
-          : "🔹No description";
+        embed.description = `${payload.pull_request.body ? payload.pull_request.body.slice(0, 1024) : "🔹No description"}\n\n**Pull Request ID:** \`${payload.pull_request.id}\``;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.pull_request.user.login;
-        embed.author.icon_url = payload.pull_request.user.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.pull_request.user.avatar_url || githubLogoUrl;
         embed.url = payload.pull_request.html_url;
         break;
       }
@@ -136,10 +135,10 @@ function createEmbed(eventType, payload) {
     case "pull_request_review":
       if (payload.action && payload.review && payload.repository) {
         embed.title = `Pull Request Review ${payload.action}`;
-        embed.description = payload.review.body || "No review body.";
+        embed.description = `${payload.review.body ? payload.review.body : "No review body."}\n\n**Review ID:** \`${payload.review.id}\``;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.review.user.login;
-        embed.author.icon_url = payload.review.user.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.review.user.avatar_url || githubLogoUrl;
         embed.url = payload.review.html_url;
         break;
       }
@@ -148,10 +147,10 @@ function createEmbed(eventType, payload) {
     case "pull_request_review_comment":
       if (payload.pull_request && payload.comment && payload.repository) {
         embed.title = `New comment on pull request: ${payload.pull_request.title}`;
-        embed.description = payload.comment.body || "No comment body.";
+        embed.description = `${payload.comment.body ? payload.comment.body : "No comment body."}\n\n**Comment ID:** \`${payload.comment.id}\``;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.comment.user.login;
-        embed.author.icon_url = payload.comment.user.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.comment.user.avatar_url || githubLogoUrl;
         embed.url = payload.comment.html_url;
         break;
       }
@@ -163,7 +162,7 @@ function createEmbed(eventType, payload) {
         embed.description = `${payload.sender.login} ${payload.action} (starred) the repository.`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.sender.login;
-        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl;
         embed.url = payload.repository.html_url;
         break;
       }
@@ -175,7 +174,7 @@ function createEmbed(eventType, payload) {
         embed.description = `${payload.sender.login} forked the repository.`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.sender.login;
-        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl;
         embed.url = payload.forkee.html_url;
         break;
       }
@@ -187,7 +186,7 @@ function createEmbed(eventType, payload) {
         embed.description = `${payload.sender.login} created a new ${payload.ref_type}.`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.sender.login;
-        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl;
         embed.url = payload.repository.html_url;
         break;
       }
@@ -199,7 +198,7 @@ function createEmbed(eventType, payload) {
         embed.description = `${payload.sender.login} deleted the ${payload.ref_type}.`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.sender.login;
-        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl;
         embed.url = payload.repository.html_url;
         break;
       }
@@ -208,10 +207,10 @@ function createEmbed(eventType, payload) {
     case "release":
       if (payload.action && payload.release && payload.repository) {
         embed.title = `Release ${payload.action}: ${payload.release.name}`;
-        embed.description = payload.release.body || "No release body.";
+        embed.description = `${payload.release.body ? payload.release.body : "No release body."}\n\n**Release ID:** \`${payload.release.id}\``;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.release.author.login;
-        embed.author.icon_url = payload.release.author.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.release.author.avatar_url || githubLogoUrl;
         embed.url = payload.release.html_url;
         break;
       }
@@ -223,7 +222,7 @@ function createEmbed(eventType, payload) {
         embed.description = `${payload.sender.login} ${payload.action} (watched) the repository.`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.sender.login;
-        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.sender.avatar_url || githubLogoUrl;
         embed.url = payload.repository.html_url;
         break;
       }
@@ -235,22 +234,21 @@ function createEmbed(eventType, payload) {
         embed.description = `${payload.member.login} was ${payload.action} to the repository.`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.member.login;
-        embed.author.icon_url = payload.member.avatar_url || githubLogoUrl; // Use GitHub logo if avatar is empty
+        embed.author.icon_url = payload.member.avatar_url || githubLogoUrl;
         embed.url = payload.repository.html_url;
         break;
       }
       return null;
 
     default:
-      log.error(
-        `${language.webhook_default_event_log_1} ${eventType} ${language.webhook_default_event_log_2} ${payload.action || ""}`
+      console.error(
+        `Unsupported event type: ${eventType} with action ${payload.action || ""}`
       );
       return null;
   }
 
-  // Validate the embed before returning
   if (!embed.title && !embed.description) {
-    log.error("Embed title and description are both empty.");
+    console.error("Embed title and description are both empty.");
     return null;
   }
 
