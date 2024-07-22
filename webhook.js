@@ -81,7 +81,7 @@ function createEmbed(eventType, payload) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits && payload.commits.length > 0) {
         embed.title = `Push Event: ${payload.pusher.name}`;
-        embed.description = `New push to **${payload.repository.name}**\n\n**Commits:**`;
+        embed.description = `New push to **${payload.repository.name}**\n\n**Commits:**\n\n[${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`;
         embed.fields = payload.commits.map(commit => ({
           name: `[${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`,
           value: `\`\`\`Author: ${commit.author.name}\`\`\``,
