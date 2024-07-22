@@ -83,7 +83,7 @@ function createEmbed(eventType, payload) {
         embed.title = `Push Event`;
         embed.description = `**Commits:**\n`;
         payload.commits.forEach(commit => {
-          embed.description += `> [${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`;
+          embed.description += `> [${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}\n\n`;
         });
         embed.footer.text = `Githook`;
         embed.author.name = payload.pusher.name;
