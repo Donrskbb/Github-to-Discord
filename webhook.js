@@ -94,6 +94,7 @@ function createEmbed(eventType, payload) {
             },
             author: {
               name: payload.pusher.name,
+              icon_url: payload.pusher.login,
             },
           });
         }
@@ -111,6 +112,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.issue.user.login,
+            icon_url: payload.issue.user.login,
           },
           url: payload.issue.html_url,
         };
@@ -128,6 +130,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
+            icon_url: payload.comment.user.login,
           },
           url: payload.comment.html_url,
         };
@@ -147,6 +150,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.pull_request.user.login,
+            icon_url: payload.pull_request.user.login,
           },
           url: payload.pull_request.html_url,
         };
@@ -164,6 +168,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.review.user.login,
+            icon_url: payload.review.user.login,
           },
           url: payload.review.html_url,
         };
@@ -181,6 +186,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
+            icon_url: payload.comment.user.login,
           },
           url: payload.comment.html_url,
         };
@@ -198,6 +204,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.repository.html_url,
         };
@@ -215,6 +222,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.forkee.html_url,
         };
@@ -237,6 +245,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.repository.html_url,
         };
@@ -259,6 +268,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.repository.html_url,
         };
@@ -276,6 +286,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.release.author.login,
+            icon_url: payload.release.author.login,
           },
           url: payload.release.html_url,
         };
@@ -293,6 +304,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.repository.html_url,
         };
@@ -310,6 +322,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.member.login,
+            icon_url: payload.member.login,
           },
           url: payload.repository.html_url,
         };
@@ -332,6 +345,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.member.login,
+            icon_url: payload.member.login,
           },
           url: payload.repository.html_url,
         };
@@ -349,6 +363,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.repository.html_url,
         };
@@ -366,6 +381,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.repository.html_url,
         };
@@ -399,6 +415,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.target_url,
         };
@@ -422,6 +439,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.deployment.url,
         };
@@ -454,6 +472,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.deployment_status.target_url,
         };
@@ -471,6 +490,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.repository.html_url,
         };
@@ -488,6 +508,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.comment.html_url,
         };
@@ -510,6 +531,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
+            icon_url: payload.sender.login,
           },
           url: payload.merge_group.url,
         };
@@ -589,11 +611,14 @@ app.get("/webhook", (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
+  // Pterodactyl online event
+  console.log(`online`);
+  
+  // Webhook Online event data
   log.debug(`${language.select_language} [ ${language_select} ]`);
   log.debug(`${language.webhook_start_running}: [ ${PORT} ]`);
   log.debug(
     `${language.webhook_start_listening} [ ${WebHookUrl}:${PORT}/webhook ]`
   );
-  // Pterodactyl online event
-  log.debug(`online`);
+
 });
