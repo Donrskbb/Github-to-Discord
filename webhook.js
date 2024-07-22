@@ -48,12 +48,15 @@ function sendDiscordWebhook(payload) {
         if (res.statusCode === 204) {
           resolve(responseData);
         } else {
-          reject(new Error(`Received status code ${res.statusCode}: ${responseData}`));
+          const error = new Error(`Received status code ${res.statusCode}: ${responseData}`);
+          log.error(`${error.message}\nResponse Body: ${responseData}`);
+          reject(error);
         }
       });
     });
 
     req.on("error", (error) => {
+      log.error(`Request Error: ${error.message}`);
       reject(error);
     });
 
@@ -89,7 +92,7 @@ function createEmbed(eventType, payload) {
             },
             author: {
               name: payload.pusher.name,
-              icon_url: payload.pusher.avatar_url, // Use avatar_url for the icon
+              icon_url: payload.pusher.avatar_url,
             },
           });
         }
@@ -107,7 +110,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.issue.user.login,
-            icon_url: payload.issue.user.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.issue.user.avatar_url,
           },
           url: payload.issue.html_url,
         };
@@ -125,7 +128,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
-            icon_url: payload.comment.user.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.comment.user.avatar_url,
           },
           url: payload.comment.html_url,
         };
@@ -138,14 +141,14 @@ function createEmbed(eventType, payload) {
           title: `Pull Request ${payload.action}: ${payload.pull_request.title}`,
           description: payload.pull_request.body
             ? payload.pull_request.body.slice(0, 1024)
-            : `🔹No description`, // Truncate body
+            : `🔹No description`,
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
           },
           author: {
             name: payload.pull_request.user.login,
-            icon_url: payload.pull_request.user.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.pull_request.user.avatar_url,
           },
           url: payload.pull_request.html_url,
         };
@@ -163,7 +166,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.review.user.login,
-            icon_url: payload.review.user.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.review.user.avatar_url,
           },
           url: payload.review.html_url,
         };
@@ -181,7 +184,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
-            icon_url: payload.comment.user.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.comment.user.avatar_url,
           },
           url: payload.comment.html_url,
         };
@@ -199,7 +202,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.sender.avatar_url,
           },
           url: payload.repository.html_url,
         };
@@ -217,7 +220,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.sender.avatar_url,
           },
           url: payload.forkee.html_url,
         };
@@ -240,7 +243,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.sender.avatar_url,
           },
           url: payload.repository.html_url,
         };
@@ -263,7 +266,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.sender.avatar_url,
           },
           url: payload.repository.html_url,
         };
@@ -281,7 +284,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.release.author.login,
-            icon_url: payload.release.author.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.release.author.avatar_url,
           },
           url: payload.release.html_url,
         };
@@ -299,7 +302,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.sender.avatar_url,
           },
           url: payload.repository.html_url,
         };
@@ -317,7 +320,7 @@ function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.member.login,
-            icon_url: payload.member.avatar_url, // Use avatar_url for the icon
+            icon_url: payload.member.avatar_url,
           },
           url: payload.repository.html_url,
         };
