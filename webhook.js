@@ -65,6 +65,11 @@ function sendDiscordWebhook(payload) {
 
 // Function to create embed message for Discord based on GitHub event
 function createEmbed(eventType, payload) {
+  if (!payload || typeof payload !== 'object') {
+    log.error(`Invalid payload for event: ${eventType}`);
+    return null;
+  }
+
   switch (eventType) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits && payload.commits.length > 0) {
@@ -314,6 +319,7 @@ function createEmbed(eventType, payload) {
       );
       return null;
   }
+
   return null;
 }
 
@@ -342,7 +348,6 @@ app.post("/webhook", (req, res) => {
     const embed = createEmbed(eventType, payload);
 
     if (embed) {
-      // Send embed data to Discord webhook
       sendDiscordWebhook(embed)
         .then(() => {
           log.success(
