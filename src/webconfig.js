@@ -1,10 +1,8 @@
 // webconfig.js
 
 module.exports = {
-    /* Main server */
-    // discordWebhookUrl: "https://discord.com/api/webhooks/1263780912152313917/bdFN6XnNtSO7-ez_R-rAl51J6lEE_m7hnbVaaYqWeLtAdUOS-WxhCXlcNGN70Z_54abb", 
-    /* Dev server */
-    discordWebhookUrl: "https://discord.com/api/webhooks/1263922998331572254/ieMlTD4mpUkiTIHjaQcH6clXTmDMnlj7fUZ9J9SQ8Z1XoOOPlwxDkRdL6dH5OXqZ7wNI",
-    WebHookUrl: "http://node-01.l3g3clan.nl",
-    Port: 40125,
+    // This is a test webhook and server, so replace this with you own data if you want to use
+    discordWebhookUrl: "https://discord.com/api/webhooks/1264988310120435846/dXY9WioT3cBRws8Br78qgiiE776_laOzSK_dcPpECXwKWgR_CldIJy6wsF60GuK9XSCA",
+    WebHookUrl: "http://node01.jammabot.nl",
+    Port: 9109,
 };
