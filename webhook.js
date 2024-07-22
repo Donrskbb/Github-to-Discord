@@ -65,253 +65,177 @@ function sendDiscordWebhook(payload) {
 
 // Function to create embed message for Discord based on GitHub event
 function createEmbed(eventType, payload) {
-  if (!payload || typeof payload !== 'object') {
-    log.error(`Invalid payload for event: ${eventType}`);
-    return null;
-  }
+  let embed = {
+    title: '',
+    description: '',
+    color: 0x7289da,
+    footer: { text: '' },
+    author: { name: '', icon_url: null },
+    url: null
+  };
 
   switch (eventType) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits && payload.commits.length > 0) {
-        const fields = payload.commits.map(commit => ({
+        embed.title = `Push Event: ${payload.pusher.name}`;
+        embed.description = `New push to ${payload.repository.name}`;
+        embed.fields = payload.commits.map(commit => ({
           name: commit.message,
           value: `Commit by ${commit.author.name}`,
           inline: false,
         }));
-
-        return {
-          title: `Push Event: ${payload.pusher.name}`,
-          description: `New push to ${payload.repository.name}`,
-          color: 0x7289da,
-          fields: fields,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.pusher.name,
-            icon_url: payload.pusher.avatar_url || null,
-          },
-        };
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.pusher.name;
+        embed.author.icon_url = payload.pusher.avatar_url || null;
+        break;
       }
-      break;
+      return null;
 
     case "issues":
       if (payload.action && payload.issue && payload.repository) {
-        return {
-          title: `Issue ${payload.action}: ${payload.issue.title}`,
-          description: payload.issue.body || "No description provided.",
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.issue.user.login,
-            icon_url: payload.issue.user.avatar_url || null,
-          },
-          url: payload.issue.html_url,
-        };
+        embed.title = `Issue ${payload.action}: ${payload.issue.title}`;
+        embed.description = payload.issue.body || "No description provided.";
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.issue.user.login;
+        embed.author.icon_url = payload.issue.user.avatar_url || null;
+        embed.url = payload.issue.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "issue_comment":
       if (payload.issue && payload.comment && payload.repository) {
-        return {
-          title: `New comment on issue: ${payload.issue.title}`,
-          description: payload.comment.body || "No comment body.",
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.comment.user.login,
-            icon_url: payload.comment.user.avatar_url || null,
-          },
-          url: payload.comment.html_url,
-        };
+        embed.title = `New comment on issue: ${payload.issue.title}`;
+        embed.description = payload.comment.body || "No comment body.";
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.comment.user.login;
+        embed.author.icon_url = payload.comment.user.avatar_url || null;
+        embed.url = payload.comment.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "pull_request":
       if (payload.action && payload.pull_request && payload.repository) {
-        return {
-          title: `Pull Request ${payload.action}: ${payload.pull_request.title}`,
-          description: payload.pull_request.body
-            ? payload.pull_request.body.slice(0, 1024)
-            : "🔹No description",
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.pull_request.user.login,
-            icon_url: payload.pull_request.user.avatar_url || null,
-          },
-          url: payload.pull_request.html_url,
-        };
+        embed.title = `Pull Request ${payload.action}: ${payload.pull_request.title}`;
+        embed.description = payload.pull_request.body
+          ? payload.pull_request.body.slice(0, 1024)
+          : "🔹No description";
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.pull_request.user.login;
+        embed.author.icon_url = payload.pull_request.user.avatar_url || null;
+        embed.url = payload.pull_request.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "pull_request_review":
       if (payload.action && payload.review && payload.repository) {
-        return {
-          title: `Pull Request Review ${payload.action}`,
-          description: payload.review.body || "No review body.",
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.review.user.login,
-            icon_url: payload.review.user.avatar_url || null,
-          },
-          url: payload.review.html_url,
-        };
+        embed.title = `Pull Request Review ${payload.action}`;
+        embed.description = payload.review.body || "No review body.";
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.review.user.login;
+        embed.author.icon_url = payload.review.user.avatar_url || null;
+        embed.url = payload.review.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "pull_request_review_comment":
       if (payload.pull_request && payload.comment && payload.repository) {
-        return {
-          title: `New comment on pull request: ${payload.pull_request.title}`,
-          description: payload.comment.body || "No comment body.",
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.comment.user.login,
-            icon_url: payload.comment.user.avatar_url || null,
-          },
-          url: payload.comment.html_url,
-        };
+        embed.title = `New comment on pull request: ${payload.pull_request.title}`;
+        embed.description = payload.comment.body || "No comment body.";
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.comment.user.login;
+        embed.author.icon_url = payload.comment.user.avatar_url || null;
+        embed.url = payload.comment.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "star":
       if (payload.sender && payload.repository) {
-        return {
-          title: `Repository ${payload.action} (starred)`,
-          description: `${payload.sender.login} ${payload.action} (starred) the repository.`,
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.sender.login,
-            icon_url: payload.sender.avatar_url || null,
-          },
-          url: payload.repository.html_url,
-        };
+        embed.title = `Repository ${payload.action} (starred)`;
+        embed.description = `${payload.sender.login} ${payload.action} (starred) the repository.`;
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.sender.login;
+        embed.author.icon_url = payload.sender.avatar_url || null;
+        embed.url = payload.repository.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "fork":
       if (payload.sender && payload.repository && payload.forkee) {
-        return {
-          title: `Repository forked`,
-          description: `${payload.sender.login} forked the repository.`,
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.sender.login,
-            icon_url: payload.sender.avatar_url || null,
-          },
-          url: payload.forkee.html_url,
-        };
+        embed.title = `Repository forked`;
+        embed.description = `${payload.sender.login} forked the repository.`;
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.sender.login;
+        embed.author.icon_url = payload.sender.avatar_url || null;
+        embed.url = payload.forkee.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "create":
       if (payload.ref && payload.ref_type && payload.repository && payload.sender) {
-        return {
-          title: `Created ${payload.ref_type}: ${payload.ref}`,
-          description: `${payload.sender.login} created a new ${payload.ref_type}.`,
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.sender.login,
-            icon_url: payload.sender.avatar_url || null,
-          },
-          url: payload.repository.html_url,
-        };
+        embed.title = `Created ${payload.ref_type}: ${payload.ref}`;
+        embed.description = `${payload.sender.login} created a new ${payload.ref_type}.`;
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.sender.login;
+        embed.author.icon_url = payload.sender.avatar_url || null;
+        embed.url = payload.repository.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "delete":
       if (payload.ref && payload.ref_type && payload.repository && payload.sender) {
-        return {
-          title: `Deleted ${payload.ref_type}: ${payload.ref}`,
-          description: `${payload.sender.login} deleted the ${payload.ref_type}.`,
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.sender.login,
-            icon_url: payload.sender.avatar_url || null,
-          },
-          url: payload.repository.html_url,
-        };
+        embed.title = `Deleted ${payload.ref_type}: ${payload.ref}`;
+        embed.description = `${payload.sender.login} deleted the ${payload.ref_type}.`;
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.sender.login;
+        embed.author.icon_url = payload.sender.avatar_url || null;
+        embed.url = payload.repository.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "release":
       if (payload.action && payload.release && payload.repository) {
-        return {
-          title: `Release ${payload.action}: ${payload.release.name}`,
-          description: payload.release.body || "No release body.",
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.release.author.login,
-            icon_url: payload.release.author.avatar_url || null,
-          },
-          url: payload.release.html_url,
-        };
+        embed.title = `Release ${payload.action}: ${payload.release.name}`;
+        embed.description = payload.release.body || "No release body.";
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.release.author.login;
+        embed.author.icon_url = payload.release.author.avatar_url || null;
+        embed.url = payload.release.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "watch":
       if (payload.action && payload.sender && payload.repository) {
-        return {
-          title: `Repository ${payload.action} (watched)`,
-          description: `${payload.sender.login} ${payload.action} (watched) the repository.`,
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.sender.login,
-            icon_url: payload.sender.avatar_url || null,
-          },
-          url: payload.repository.html_url,
-        };
+        embed.title = `Repository ${payload.action} (watched)`;
+        embed.description = `${payload.sender.login} ${payload.action} (watched) the repository.`;
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.sender.login;
+        embed.author.icon_url = payload.sender.avatar_url || null;
+        embed.url = payload.repository.html_url;
+        break;
       }
-      break;
+      return null;
 
     case "member":
       if (payload.action && payload.member && payload.repository) {
-        return {
-          title: `Member ${payload.action}`,
-          description: `${payload.member.login} was ${payload.action} to the repository.`,
-          color: 0x7289da,
-          footer: {
-            text: `Repository: ${payload.repository.name}`,
-          },
-          author: {
-            name: payload.member.login,
-            icon_url: payload.member.avatar_url || null,
-          },
-          url: payload.repository.html_url,
-        };
+        embed.title = `Member ${payload.action}`;
+        embed.description = `${payload.member.login} was ${payload.action} to the repository.`;
+        embed.footer.text = `Repository: ${payload.repository.name}`;
+        embed.author.name = payload.member.login;
+        embed.author.icon_url = payload.member.avatar_url || null;
+        embed.url = payload.repository.html_url;
+        break;
       }
-      break;
+      return null;
 
     default:
       log.error(
@@ -320,7 +244,13 @@ function createEmbed(eventType, payload) {
       return null;
   }
 
-  return null;
+  // Ensure that embed title and description are not empty
+  if (!embed.title || !embed.description) {
+    log.error(`Invalid embed created for event: ${eventType}`);
+    return null;
+  }
+
+  return embed;
 }
 
 // Function to check BranchStatus and event status
