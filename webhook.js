@@ -65,7 +65,7 @@ function sendDiscordWebhook(payload) {
 
 // Function to create embed message for Discord based on GitHub event
 function createEmbed(eventType, payload) {
-  // URL of the GitHub logo to use as fallback for avatars
+  // URL of the GitHub logo to use as fallback for avatars 
   const githubLogoUrl = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
 
   let embed = {
