@@ -66,6 +66,7 @@ function sendDiscordWebhook(payload) {
 }
 
 // Function to create embed message for Discord based on GitHub event
+// Function to create embed message for Discord based on GitHub event
 function createEmbed(eventType, payload) {
   let embeds = [];
 
@@ -341,7 +342,8 @@ function createEmbed(eventType, payload) {
     return null;
   }
 
-  return { embeds: embeds };
+  // Return the embed payload only if it's not empty
+  return embeds.length > 0 ? { embeds: embeds } : null;
 }
 
 // Function to check BranchStatus and event status
