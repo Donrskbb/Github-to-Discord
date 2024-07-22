@@ -50,7 +50,11 @@ function sendDiscordWebhook(payload) {
       });
 
       res.on("end", () => {
-        resolve(responseData);
+        if (res.statusCode === 204) {
+          resolve(responseData);
+        } else {
+          reject(new Error(`Received status code ${res.statusCode}: ${responseData}`));
+        }
       });
     });
 
@@ -65,13 +69,13 @@ function sendDiscordWebhook(payload) {
 
 // Function to create embed message for Discord based on GitHub event
 function createEmbed(eventType, payload) {
+  let embeds = [];
+
   switch (eventType) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits) {
-        const embeds = [];
         const commits = payload.commits;
 
-        // Create an embed for each batch of up to 25 commits
         for (let i = 0; i < commits.length; i += 25) {
           const commitBatch = commits.slice(i, i + 25);
           const fields = commitBatch.map((commit) => ({
@@ -93,8 +97,6 @@ function createEmbed(eventType, payload) {
             },
           });
         }
-
-        return embeds;
       }
       break;
 
@@ -521,9 +523,14 @@ function createEmbed(eventType, payload) {
         `${language.webhook_default_event_log_1} ${eventType} ${language.webhook_default_event_log_2} ${payload.action} ${language.webhook_default_event_log_3}`
       );
   }
-  log.error(
-    `${language.webhook_default_event_log_4} ${eventType} ${language.webhook_default_event_log_5} ${payload.action} ${language.webhook_default_event_log_6}`
-  );
+
+  if (embeds.length === 0) {
+     return log.error(
+      `${language.webhook_default_event_log_4} ${eventType} ${language.webhook_default_event_log_5} ${payload.action} ${language.webhook_default_event_log_6}`
+    );;
+  }
+
+  return { embeds: embeds };
 }
 
 // Function to check BranchStatus and event status
@@ -552,7 +559,7 @@ app.post("/webhook", (req, res) => {
 
     if (embed) {
       // Send embed data to Discord webhook
-      sendDiscordWebhook({ embeds: [embed] })
+      sendDiscordWebhook(embed)
         .then(() => {
           log.success(
             `${language.webhook_eventType_log_1} ${eventType} ${language.webhook_eventType_log_2}`
