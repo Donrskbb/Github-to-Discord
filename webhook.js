@@ -3,16 +3,18 @@
 const express = require("express");
 const https = require("https");
 const bodyParser = require("body-parser");
-const fetch = require("node-fetch");
 const { BranchStatus, EventStatuses, LANGUAGES } = require("./src/config");
 const { discordWebhookUrl, Port, WebHookUrl } = require("./src/webconfig");
+
 const log = require("./src/util");
+
 const fs = require("fs");
 const language = JSON.parse(
   fs.readFileSync(`./language/${LANGUAGES}.json`, "utf-8")
 );
 
 let language_select = LANGUAGES === "eng" ? "English" : "Nederlands";
+
 const app = express();
 const PORT = Port || 40125;
 
@@ -60,20 +62,8 @@ function sendDiscordWebhook(payload) {
   });
 }
 
-// Function to get GitHub user profile image
-async function getGitHubUserAvatar(username) {
-  try {
-    const response = await fetch(`https://api.github.com/users/${username}`);
-    const user = await response.json();
-    return user.avatar_url;
-  } catch (error) {
-    console.error(`Error fetching avatar for ${username}:`, error);
-    return null;
-  }
-}
-
 // Function to create embed message for Discord based on GitHub event
-async function createEmbed(eventType, payload) {
+function createEmbed(eventType, payload) {
   let embeds = [];
 
   switch (eventType) {
@@ -99,7 +89,7 @@ async function createEmbed(eventType, payload) {
             },
             author: {
               name: payload.pusher.name,
-              icon_url: await getGitHubUserAvatar(payload.pusher.name),
+              icon_url: payload.pusher.avatar_url, // Use avatar_url for the icon
             },
           });
         }
@@ -108,7 +98,6 @@ async function createEmbed(eventType, payload) {
 
     case "issues":
       if (payload.action && payload.issue && payload.repository) {
-        const avatarUrl = await getGitHubUserAvatar(payload.issue.user.login);
         return {
           title: `Issue ${payload.action}: ${payload.issue.title}`,
           description: payload.issue.body,
@@ -118,7 +107,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.issue.user.login,
-            icon_url: avatarUrl,
+            icon_url: payload.issue.user.avatar_url, // Use avatar_url for the icon
           },
           url: payload.issue.html_url,
         };
@@ -127,7 +116,6 @@ async function createEmbed(eventType, payload) {
 
     case "issue_comment":
       if (payload.issue && payload.comment && payload.repository) {
-        const avatarUrl = await getGitHubUserAvatar(payload.comment.user.login);
         return {
           title: `New comment on issue: ${payload.issue.title}`,
           description: payload.comment.body,
@@ -137,7 +125,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
-            icon_url: avatarUrl,
+            icon_url: payload.comment.user.avatar_url, // Use avatar_url for the icon
           },
           url: payload.comment.html_url,
         };
@@ -146,19 +134,18 @@ async function createEmbed(eventType, payload) {
 
     case "pull_request":
       if (payload.action && payload.pull_request && payload.repository) {
-        const avatarUrl = await getGitHubUserAvatar(payload.pull_request.user.login);
         return {
           title: `Pull Request ${payload.action}: ${payload.pull_request.title}`,
           description: payload.pull_request.body
             ? payload.pull_request.body.slice(0, 1024)
-            : `🔹No description`,
+            : `🔹No description`, // Truncate body
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
           },
           author: {
             name: payload.pull_request.user.login,
-            icon_url: avatarUrl,
+            icon_url: payload.pull_request.user.avatar_url, // Use avatar_url for the icon
           },
           url: payload.pull_request.html_url,
         };
@@ -167,7 +154,6 @@ async function createEmbed(eventType, payload) {
 
     case "pull_request_review":
       if (payload.action && payload.review && payload.repository) {
-        const avatarUrl = await getGitHubUserAvatar(payload.review.user.login);
         return {
           title: `Pull Request Review ${payload.action}`,
           description: payload.review.body,
@@ -177,7 +163,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.review.user.login,
-            icon_url: avatarUrl,
+            icon_url: payload.review.user.avatar_url, // Use avatar_url for the icon
           },
           url: payload.review.html_url,
         };
@@ -186,7 +172,6 @@ async function createEmbed(eventType, payload) {
 
     case "pull_request_review_comment":
       if (payload.pull_request && payload.comment && payload.repository) {
-        const avatarUrl = await getGitHubUserAvatar(payload.comment.user.login);
         return {
           title: `New comment on pull request: ${payload.pull_request.title}`,
           description: payload.comment.body,
@@ -196,7 +181,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.comment.user.login,
-            icon_url: avatarUrl,
+            icon_url: payload.comment.user.avatar_url, // Use avatar_url for the icon
           },
           url: payload.comment.html_url,
         };
@@ -205,7 +190,6 @@ async function createEmbed(eventType, payload) {
 
     case "star":
       if (payload.sender && payload.repository) {
-        const avatarUrl = await getGitHubUserAvatar(payload.sender.login);
         return {
           title: `Repository ${payload.action} (starred)`,
           description: `${payload.sender.login} ${payload.action} (starred) the repository.`,
@@ -215,7 +199,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: avatarUrl,
+            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
           },
           url: payload.repository.html_url,
         };
@@ -224,7 +208,6 @@ async function createEmbed(eventType, payload) {
 
     case "fork":
       if (payload.sender && payload.repository && payload.forkee) {
-        const avatarUrl = await getGitHubUserAvatar(payload.sender.login);
         return {
           title: `Repository forked`,
           description: `${payload.sender.login} forked the repository.`,
@@ -234,7 +217,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: avatarUrl,
+            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
           },
           url: payload.forkee.html_url,
         };
@@ -248,7 +231,6 @@ async function createEmbed(eventType, payload) {
         payload.repository &&
         payload.sender
       ) {
-        const avatarUrl = await getGitHubUserAvatar(payload.sender.login);
         return {
           title: `Created ${payload.ref_type}: ${payload.ref}`,
           description: `${payload.sender.login} created a new ${payload.ref_type}.`,
@@ -258,7 +240,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: avatarUrl,
+            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
           },
           url: payload.repository.html_url,
         };
@@ -272,7 +254,6 @@ async function createEmbed(eventType, payload) {
         payload.repository &&
         payload.sender
       ) {
-        const avatarUrl = await getGitHubUserAvatar(payload.sender.login);
         return {
           title: `Deleted ${payload.ref_type}: ${payload.ref}`,
           description: `${payload.sender.login} deleted the ${payload.ref_type}.`,
@@ -282,7 +263,7 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.sender.login,
-            icon_url: avatarUrl,
+            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
           },
           url: payload.repository.html_url,
         };
@@ -291,7 +272,6 @@ async function createEmbed(eventType, payload) {
 
     case "release":
       if (payload.action && payload.release && payload.repository) {
-        const avatarUrl = await getGitHubUserAvatar(payload.release.author.login);
         return {
           title: `Release ${payload.action}: ${payload.release.name}`,
           description: payload.release.body,
@@ -301,33 +281,92 @@ async function createEmbed(eventType, payload) {
           },
           author: {
             name: payload.release.author.login,
-            icon_url: avatarUrl,
+            icon_url: payload.release.author.avatar_url, // Use avatar_url for the icon
           },
           url: payload.release.html_url,
         };
       }
       break;
 
+    case "watch":
+      if (payload.action && payload.sender && payload.repository) {
+        return {
+          title: `Repository ${payload.action} (watched)`,
+          description: `${payload.sender.login} ${payload.action} (watched) the repository.`,
+          color: 0x7289da,
+          footer: {
+            text: `Repository: ${payload.repository.name}`,
+          },
+          author: {
+            name: payload.sender.login,
+            icon_url: payload.sender.avatar_url, // Use avatar_url for the icon
+          },
+          url: payload.repository.html_url,
+        };
+      }
+      break;
+
+    case "member":
+      if (payload.action && payload.member && payload.repository) {
+        return {
+          title: `Member ${payload.action}`,
+          description: `${payload.member.login} was ${payload.action} to the repository.`,
+          color: 0x7289da,
+          footer: {
+            text: `Repository: ${payload.repository.name}`,
+          },
+          author: {
+            name: payload.member.login,
+            icon_url: payload.member.avatar_url, // Use avatar_url for the icon
+          },
+          url: payload.repository.html_url,
+        };
+      }
+      break;
+
     default:
-      console.error(`Unhandled event type: ${eventType}`);
+      log.error(
+        `${language.webhook_default_event_log_1} ${eventType} ${language.webhook_default_event_log_2} ${payload.action || ''} ${language.webhook_default_event_log_3}`
+      );
+      return null;
+  }
+
+  if (embeds.length === 0) {
+    log.error(
+      `${language.webhook_default_event_log_4} ${eventType} ${language.webhook_default_event_log_5} ${payload.action || ''} ${language.webhook_default_event_log_6}`
+    );
+    return null;
   }
 
   return { embeds: embeds };
 }
 
-// Function to check branch status
+// Function to check BranchStatus and event status
 function checkBranchStatus(eventType) {
-  return BranchStatus.includes(eventType);
+  if (!BranchStatus) {
+    log.info(`${language.webhook_BranchStatus_log_info}`);
+  }
+
+  if (EventStatuses.hasOwnProperty(eventType) && EventStatuses[eventType]) {
+    return true;
+  } else {
+    log.warn(
+      `${language.webhook_BranchStatus_log_warn_1} ${eventType} ${language.webhook_BranchStatus_log_warn_2}`
+    );
+    return false;
+  }
 }
 
-app.post("/webhook", async (req, res) => {
+// Route to handle GitHub webhook events
+app.post("/webhook", (req, res) => {
   const eventType = req.headers["x-github-event"];
   const payload = req.body;
 
   if (checkBranchStatus(eventType)) {
-    const embed = await createEmbed(eventType, payload);
+    const embed = createEmbed(eventType, payload);
 
     if (embed) {
+      // Send embed data to Discord webhook
       sendDiscordWebhook(embed)
         .then(() => {
           log.success(
@@ -350,16 +389,18 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
+// Route to handle GitHub webhook ping event
+app.get("/webhook", (req, res) => {
+  log.debug(`${language.webhook_ping_received}`);
+  res.status(200).send(`${language.webhook_ping_status}`);
+});
+
 // Start server
 app.listen(PORT, () => {
-  // Pterodactyl online event
   console.log(`online`);
-  
-  // Webhook Online event data
   log.debug(`${language.select_language} [ ${language_select} ]`);
   log.debug(`${language.webhook_start_running}: [ ${PORT} ]`);
   log.debug(
     `${language.webhook_start_listening} [ ${WebHookUrl}:${PORT}/webhook ]`
   );
-
 });
