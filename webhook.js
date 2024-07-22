@@ -239,14 +239,14 @@ function createEmbed(eventType, payload) {
 
     default:
       log.error(
-        `${language.webhook_default_event_log_1} ${eventType} ${language.webhook_default_event_log_2} ${payload.action || ''} ${language.webhook_default_event_log_3}`
+        `${language.webhook_default_event_log_1} ${eventType} ${language.webhook_default_event_log_2} ${payload.action || ""}`
       );
       return null;
   }
 
-  // Ensure that embed title and description are not empty
-  if (!embed.title || !embed.description) {
-    log.error(`Invalid embed created for event: ${eventType}`);
+  // Validate the embed before returning
+  if (!embed.title && !embed.description) {
+    log.error("Embed title and description are both empty.");
     return null;
   }
 
@@ -278,7 +278,7 @@ app.post("/webhook", (req, res) => {
     const embed = createEmbed(eventType, payload);
 
     if (embed) {
-      sendDiscordWebhook(embed)
+      sendDiscordWebhook({ embeds: [embed] })
         .then(() => {
           log.success(
             `${language.webhook_eventType_log_1} ${eventType} ${language.webhook_eventType_log_2}`
