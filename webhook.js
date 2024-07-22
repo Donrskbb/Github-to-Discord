@@ -71,18 +71,19 @@ function createEmbed(eventType, payload) {
     title: '',
     description: '',
     color: 0x7289da,
-    footer: { text: '' },
+    footer: { text: '', icon_url: githubLogoUrl },
     author: { name: '', icon_url: githubLogoUrl },
-    url: null
+    url: null,
+    timestamp: new Date().toISOString()
   };
 
   switch (eventType) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits && payload.commits.length > 0) {
-        embed.title = `Push Event: ${payload.pusher.name}`;
+        embed.title = `Push Event`;
         embed.description = `New push to **${payload.repository.name}**\n\n**Commits:**\n`;
         payload.commits.forEach(commit => {
-          embed.description += `> [${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`;
+          embed.description += `- [${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`;
         });
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.pusher.name;
@@ -250,6 +251,8 @@ function createEmbed(eventType, payload) {
 
   return embed;
 }
+
+
 
 
 // Function to check BranchStatus and event status
