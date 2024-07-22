@@ -1,6 +1,6 @@
 # Githook
 
-Welcome to **Githook** – your advanced GitHub webhook solution!
+Welcome to **Githook** – your advanced GitHub Discord webhook solution!
 
 ## 🚀 What Can You Expect?
 
