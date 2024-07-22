@@ -55,5 +55,5 @@ Currently, we are not accepting translation contributions. However, we welcome y
 
 ---
 
-For more details, follow our repository and stay tuned for updates. If you have any questions or need assistance, don’t hesitate to reach out!
+For more details, follow our repository and stay tuned for updates. If you have any questions or need assistance, don’t hesitate to reach out!!
 
