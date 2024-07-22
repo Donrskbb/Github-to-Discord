@@ -63,7 +63,7 @@ function sendDiscordWebhook(payload) {
   });
 }
 
-// Function to create embed message for Discord based on GitHub event  
+// Function to create embed message for Discord based on GitHub event   
 function createEmbed(eventType, payload) {
   const githubLogoUrl = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
 
