@@ -65,7 +65,7 @@ function sendDiscordWebhook(payload) {
 
 // Function to create embed message for Discord based on GitHub event    
 function createEmbed(eventType, payload) {
-  const githubLogoUrl = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
+  const githubLogoUrl = "https://cdn.discordapp.com/attachments/1000001747491758120/1265029790541549568/logo.png?ex=66a0064d&is=669eb4cd&hm=32bf379131b47f4bcb02de10c8204e60d94ec201ced6250b2649c1657a000de1&";
 
   let embed = {
     title: '',
@@ -81,9 +81,9 @@ function createEmbed(eventType, payload) {
     case "push":
       if (payload.pusher && payload.repository && payload.commits && payload.commits.length > 0) {
         embed.title = `Push Event`;
-        embed.description = `New push to **${payload.repository.name}**\n\n**Commits:**\n`;
+        embed.description = `**Commits:**\n`;
         payload.commits.forEach(commit => {
-          embed.description += `- [${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`;
+          embed.description += `> [${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`;
         });
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.pusher.name;
@@ -96,7 +96,7 @@ function createEmbed(eventType, payload) {
     case "issues":
       if (payload.action && payload.issue && payload.repository) {
         embed.title = `Issue ${payload.action}: ${payload.issue.title}`;
-        embed.description = `${payload.issue.body || "No description provided."}\n\n**Issue:** [#${payload.issue.number}](${payload.issue.html_url})`;
+        embed.description = `[#${payload.issue.number}](${payload.issue.html_url}) \n\n**Issue:** ${payload.issue.body || "No description provided."}`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.issue.user.login;
         embed.author.icon_url = payload.issue.user.avatar_url || githubLogoUrl;
