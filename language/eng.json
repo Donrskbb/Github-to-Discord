@@ -1,0 +1,38 @@
+{
+  "util_info": "INFO",
+  "util_warn": "WARN",
+  "util_error": "ERROR",
+  "util_success": "SUCCESS",
+  "util_debug": "DEBUG",
+  "util_deleted": "DELETED",
+  "util_updated": "UPDATED",
+  "util_created": "CREATED",
+  "util_custom": "CUSTOM",
+
+  "webhook_default_event_log_1": "[DEFAULT ERROR] Event:",
+  "webhook_default_event_log_2": "Payload:",
+  "webhook_default_event_log_3": "not accepted",
+  "webhook_default_event_log_4": "[FUNCTION ERROR] Event:",
+  "webhook_default_event_log_5": "Payload:",
+  "webhook_default_event_log_6": "not accepted",
+
+  "webhook_BranchStatus_log_info": "Deze Branch melding is uitgeschakelt!\nJe kan dit aan zeten door in de config.js BranchStatus op true te zeten.",
+  "webhook_BranchStatus_log_warn_1": "[EVENT DISABLED] Event:",
+  "webhook_BranchStatus_log_warn_2": "is disabled in config.js",
+
+  "webhook_eventType_log_1": "Successfully sent",
+  "webhook_eventType_log_2": "event to Discord",
+  "webhook_eventType_status_1": "Message sent to Discord",
+  "webhook_eventType_log_3": "Error sending",
+  "webhook_eventType_log_4": "event to Discord",
+  "webhook_eventType_status_2": "Error sending message to Discord",
+  "webhook_eventType_status_3": "Event ignored",
+  "webhook_eventType_status_4": "Event type disabled",
+
+  "webhook_ping_received": "Received GitHub webhook ping",
+  "webhook_ping_status": "Webhook is configured correctly",
+
+  "select_language": "Selected Language:",
+  "webhook_start_running": "Server is running on port",
+  "webhook_start_listening": "Webhook receiver listening at"
+}

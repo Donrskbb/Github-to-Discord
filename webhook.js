@@ -3,8 +3,22 @@
 const express = require("express");
 const https = require("https");
 const bodyParser = require("body-parser");
-const { discordWebhookUrl, Port, WebHookUrl, BranchStatus, EventStatuses } = require("./src/config"); // Include EventStatuses
+const { BranchStatus, EventStatuses, LANGUAGES } = require("./src/config");
+const { discordWebhookUrl, Port, WebHookUrl } = require("./src/webconfig");
+
 const log = require("./src/util");
+
+const fs = require("fs");
+const language = JSON.parse(
+  fs.readFileSync(`./language/${LANGUAGES}.json`, "utf-8")
+);
+
+let language_select = LANGUAGES;
+if (LANGUAGES === "eng") {
+  language_select = "English";
+} else if (LANGUAGES === "nl") {
+  language_select = "Nederlands";
+}
 
 const app = express();
 const PORT = Port || 40125;
@@ -60,10 +74,10 @@ function createEmbed(eventType, payload) {
         // Create an embed for each batch of up to 25 commits
         for (let i = 0; i < commits.length; i += 25) {
           const commitBatch = commits.slice(i, i + 25);
-          const fields = commitBatch.map(commit => ({
+          const fields = commitBatch.map((commit) => ({
             name: commit.message,
             value: `Commit by ${commit.author.name}`,
-            inline: false
+            inline: false,
           }));
 
           embeds.push({
@@ -118,22 +132,24 @@ function createEmbed(eventType, payload) {
       }
       break;
 
-      case "pull_request":
-        if (payload.action && payload.pull_request && payload.repository) {
-          return {
-            title: `Pull Request ${payload.action}: ${payload.pull_request.title}`,
-            description: payload.pull_request.body ? payload.pull_request.body.slice(0, 1024) : 'No description', // Truncate body
-            color: 0x7289da,
-            footer: {
-              text: `Repository: ${payload.repository.name}`,
-            },
-            author: {
-              name: payload.pull_request.user.login,
-            },
-            url: payload.pull_request.html_url,
-          };
-        }
-        break;
+    case "pull_request":
+      if (payload.action && payload.pull_request && payload.repository) {
+        return {
+          title: `Pull Request ${payload.action}: ${payload.pull_request.title}`,
+          description: payload.pull_request.body
+            ? payload.pull_request.body.slice(0, 1024)
+            : `🔹No description`, // Truncate body
+          color: 0x7289da,
+          footer: {
+            text: `Repository: ${payload.repository.name}`,
+          },
+          author: {
+            name: payload.pull_request.user.login,
+          },
+          url: payload.pull_request.html_url,
+        };
+      }
+      break;
 
     case "pull_request_review":
       if (payload.action && payload.review && payload.repository) {
@@ -204,7 +220,12 @@ function createEmbed(eventType, payload) {
       break;
 
     case "create":
-      if (payload.ref && payload.ref_type && payload.repository && payload.sender) {
+      if (
+        payload.ref &&
+        payload.ref_type &&
+        payload.repository &&
+        payload.sender
+      ) {
         return {
           title: `Created ${payload.ref_type}: ${payload.ref}`,
           description: `${payload.sender.login} created a new ${payload.ref_type}.`,
@@ -221,7 +242,12 @@ function createEmbed(eventType, payload) {
       break;
 
     case "delete":
-      if (payload.ref && payload.ref_type && payload.repository && payload.sender) {
+      if (
+        payload.ref &&
+        payload.ref_type &&
+        payload.repository &&
+        payload.sender
+      ) {
         return {
           title: `Deleted ${payload.ref_type}: ${payload.ref}`,
           description: `${payload.sender.login} deleted the ${payload.ref_type}.`,
@@ -289,7 +315,12 @@ function createEmbed(eventType, payload) {
       break;
 
     case "membership":
-      if (payload.action && payload.scope && payload.member && payload.repository) {
+      if (
+        payload.action &&
+        payload.scope &&
+        payload.member &&
+        payload.repository
+      ) {
         return {
           title: `Membership ${payload.action}`,
           description: `${payload.member.login} was ${payload.action} to the ${payload.scope} of the repository.`,
@@ -340,7 +371,13 @@ function createEmbed(eventType, payload) {
       break;
 
     case "status":
-      if (payload.context && payload.state && payload.description && payload.repository && payload.sender) {
+      if (
+        payload.context &&
+        payload.state &&
+        payload.description &&
+        payload.repository &&
+        payload.sender
+      ) {
         return {
           title: `Status ${payload.state}`,
           description: `The status of a commit changed to ${payload.state}.`,
@@ -390,7 +427,12 @@ function createEmbed(eventType, payload) {
       break;
 
     case "deployment_status":
-      if (payload.deployment_status && payload.deployment && payload.repository && payload.sender) {
+      if (
+        payload.deployment_status &&
+        payload.deployment &&
+        payload.repository &&
+        payload.sender
+      ) {
         return {
           title: `Deployment status: ${payload.deployment_status.state}`,
           description: `The deployment status was updated to ${payload.deployment_status.state} by ${payload.sender.login}.`,
@@ -451,7 +493,12 @@ function createEmbed(eventType, payload) {
       break;
 
     case "merge_group":
-      if (payload.action && payload.merge_group && payload.repository && payload.sender) {
+      if (
+        payload.action &&
+        payload.merge_group &&
+        payload.repository &&
+        payload.sender
+      ) {
         return {
           title: `Merge group ${payload.action}`,
           description: `A merge group was ${payload.action} by ${payload.sender.login}.`,
@@ -470,21 +517,27 @@ function createEmbed(eventType, payload) {
     // Add more cases as needed for other events
 
     default:
-      log.error(`[DEFAULT ERROR] Event: ${eventType} Payload: ${payload.action} not accepted`);
+      log.error(
+        `${language.webhook_default_event_log_1} ${eventType} ${language.webhook_default_event_log_2} ${payload.action} ${language.webhook_default_event_log_3}`
+      );
   }
-  log.error(`[FUNCTION ERROR] Event: ${eventType} Payload: ${payload.action} not accepted`);
+  log.error(
+    `${language.webhook_default_event_log_4} ${eventType} ${language.webhook_default_event_log_5} ${payload.action} ${language.webhook_default_event_log_6}`
+  );
 }
 
 // Function to check BranchStatus and event status
 function checkBranchStatus(eventType) {
   if (!BranchStatus) {
-    log.info('Deze Branch melding is uitgeschakelt!\nJe kan dit aan zeten door in de config.js BranchStatus op true te zeten.');
+    log.info(`${language.webhook_BranchStatus_log_info}`);
   }
 
   if (EventStatuses.hasOwnProperty(eventType) && EventStatuses[eventType]) {
     return true;
   } else {
-    log.warn(`[EVENT DISABLED] Event: ${eventType} is disabled in config.js`);
+    log.warn(
+      `${language.webhook_BranchStatus_log_warn_1} ${eventType} ${language.webhook_BranchStatus_log_warn_2}`
+    );
     return false;
   }
 }
@@ -501,31 +554,39 @@ app.post("/webhook", (req, res) => {
       // Send embed data to Discord webhook
       sendDiscordWebhook({ embeds: [embed] })
         .then(() => {
-          log.success(`Successfully sent ${eventType} event to Discord`);
-          res.status(200).send("Message sent to Discord");
+          log.success(
+            `${language.webhook_eventType_log_1} ${eventType} ${language.webhook_eventType_log_2}`
+          );
+          res.status(200).send(`${language.webhook_eventType_status_1}`);
         })
         .catch((error) => {
-          log.error(`Error sending ${eventType} event to Discord`, error);
-          res.status(500).send("Error sending message to Discord");
+          log.error(
+            `${language.webhook_eventType_log_3} ${eventType} ${language.webhook_eventType_log_4}`,
+            error
+          );
+          res.status(500).send(`${language.webhook_eventType_status_2}`);
         });
     } else {
-      res.status(200).send("Event ignored");
+      res.status(200).send(`${language.webhook_eventType_status_3}`);
     }
   } else {
-    res.status(200).send("Event type disabled");
+    res.status(200).send(`${language.webhook_eventType_status_4}`);
   }
 });
 
 // Route to handle GitHub webhook ping event
 app.get("/webhook", (req, res) => {
-  log.debug("Received GitHub webhook ping");
-  res.status(200).send("Webhook is configured correctly");
+  log.debug(`${language.webhook_ping_received}`);
+  res.status(200).send(`${language.webhook_ping_status}`);
 });
 
 // Start server
 app.listen(PORT, () => {
-  log.debug("Server is running on port " + PORT);
-  log.debug("Webhook receiver listening at " + WebHookUrl + ":" + PORT + "/webhook");
+  log.debug(`${language.select_language} [ ${language_select} ]`);
+  log.debug(`${language.webhook_start_running}: [ ${PORT} ]`);
+  log.debug(
+    `${language.webhook_start_listening} [ ${WebHookUrl}:${PORT}/webhook ]`
+  );
   // Pterodactyl online event
   log.debug(`online`);
 });
