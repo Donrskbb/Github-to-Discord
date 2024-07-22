@@ -65,7 +65,6 @@ function sendDiscordWebhook(payload) {
 
 // Function to create embed message for Discord based on GitHub event
 function createEmbed(eventType, payload) {
-  // URL of the GitHub logo to use as fallback for avatars 
   const githubLogoUrl = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png";
 
   let embed = {
@@ -84,8 +83,8 @@ function createEmbed(eventType, payload) {
         embed.title = `Push Event: ${payload.pusher.name}`;
         embed.description = `New push to **${payload.repository.name}**\n\n**Commits:**`;
         embed.fields = payload.commits.map(commit => ({
-          name: commit.message,
-          value: `\`\`\`Author: ${commit.author.name}\nCommit ID: ${commit.id}\`\`\``,
+          name: `[${commit.id.slice(0, 7)}](${payload.repository.html_url}/commit/${commit.id}) ${commit.message}`,
+          value: `\`\`\`Author: ${commit.author.name}\`\`\``,
           inline: false,
         }));
         embed.footer.text = `Repository: ${payload.repository.name}`;
@@ -99,7 +98,7 @@ function createEmbed(eventType, payload) {
     case "issues":
       if (payload.action && payload.issue && payload.repository) {
         embed.title = `Issue ${payload.action}: ${payload.issue.title}`;
-        embed.description = `${payload.issue.body ? payload.issue.body : "No description provided."}\n\n**Issue ID:** \`${payload.issue.id}\``;
+        embed.description = `${payload.issue.body ? payload.issue.body : "No description provided."}\n\n**Issue:** [#${payload.issue.number}](${payload.issue.html_url})`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.issue.user.login;
         embed.author.icon_url = payload.issue.user.avatar_url || githubLogoUrl;
@@ -111,7 +110,7 @@ function createEmbed(eventType, payload) {
     case "issue_comment":
       if (payload.issue && payload.comment && payload.repository) {
         embed.title = `New comment on issue: ${payload.issue.title}`;
-        embed.description = `${payload.comment.body ? payload.comment.body : "No comment body."}\n\n**Comment ID:** \`${payload.comment.id}\``;
+        embed.description = `${payload.comment.body ? payload.comment.body : "No comment body."}\n\n**Comment:** [#${payload.comment.id}](${payload.comment.html_url})`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.comment.user.login;
         embed.author.icon_url = payload.comment.user.avatar_url || githubLogoUrl;
@@ -123,7 +122,7 @@ function createEmbed(eventType, payload) {
     case "pull_request":
       if (payload.action && payload.pull_request && payload.repository) {
         embed.title = `Pull Request ${payload.action}: ${payload.pull_request.title}`;
-        embed.description = `${payload.pull_request.body ? payload.pull_request.body.slice(0, 1024) : "🔹No description"}\n\n**Pull Request ID:** \`${payload.pull_request.id}\``;
+        embed.description = `${payload.pull_request.body ? payload.pull_request.body.slice(0, 1024) : "🔹No description"}\n\n**Pull Request:** [#${payload.pull_request.number}](${payload.pull_request.html_url})`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.pull_request.user.login;
         embed.author.icon_url = payload.pull_request.user.avatar_url || githubLogoUrl;
@@ -135,7 +134,7 @@ function createEmbed(eventType, payload) {
     case "pull_request_review":
       if (payload.action && payload.review && payload.repository) {
         embed.title = `Pull Request Review ${payload.action}`;
-        embed.description = `${payload.review.body ? payload.review.body : "No review body."}\n\n**Review ID:** \`${payload.review.id}\``;
+        embed.description = `${payload.review.body ? payload.review.body : "No review body."}\n\n**Review:** [#${payload.review.id}](${payload.review.html_url})`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.review.user.login;
         embed.author.icon_url = payload.review.user.avatar_url || githubLogoUrl;
@@ -147,7 +146,7 @@ function createEmbed(eventType, payload) {
     case "pull_request_review_comment":
       if (payload.pull_request && payload.comment && payload.repository) {
         embed.title = `New comment on pull request: ${payload.pull_request.title}`;
-        embed.description = `${payload.comment.body ? payload.comment.body : "No comment body."}\n\n**Comment ID:** \`${payload.comment.id}\``;
+        embed.description = `${payload.comment.body ? payload.comment.body : "No comment body."}\n\n**Comment:** [#${payload.comment.id}](${payload.comment.html_url})`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.comment.user.login;
         embed.author.icon_url = payload.comment.user.avatar_url || githubLogoUrl;
@@ -207,7 +206,7 @@ function createEmbed(eventType, payload) {
     case "release":
       if (payload.action && payload.release && payload.repository) {
         embed.title = `Release ${payload.action}: ${payload.release.name}`;
-        embed.description = `${payload.release.body ? payload.release.body : "No release body."}\n\n**Release ID:** \`${payload.release.id}\``;
+        embed.description = `${payload.release.body ? payload.release.body : "No release body."}\n\n**Release:** [#${payload.release.id}](${payload.release.html_url})`;
         embed.footer.text = `Repository: ${payload.repository.name}`;
         embed.author.name = payload.release.author.login;
         embed.author.icon_url = payload.release.author.avatar_url || githubLogoUrl;
@@ -254,6 +253,7 @@ function createEmbed(eventType, payload) {
 
   return embed;
 }
+
 
 // Function to check BranchStatus and event status
 function checkBranchStatus(eventType) {
