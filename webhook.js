@@ -26,7 +26,7 @@ function sendDiscordWebhook(payload) {
   const options = {
     hostname: url.hostname,
     port: 443,
-    path: url.pathname + url.search, // Include query string if present
+    path: url.pathname + url.search,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -67,9 +67,8 @@ function sendDiscordWebhook(payload) {
 function createEmbed(eventType, payload) {
   switch (eventType) {
     case "push":
-      if (payload.pusher && payload.repository && payload.commits) {
-        const commits = payload.commits;
-        const fields = commits.map(commit => ({
+      if (payload.pusher && payload.repository && payload.commits && payload.commits.length > 0) {
+        const fields = payload.commits.map(commit => ({
           name: commit.message,
           value: `Commit by ${commit.author.name}`,
           inline: false,
@@ -95,7 +94,7 @@ function createEmbed(eventType, payload) {
       if (payload.action && payload.issue && payload.repository) {
         return {
           title: `Issue ${payload.action}: ${payload.issue.title}`,
-          description: payload.issue.body,
+          description: payload.issue.body || "No description provided.",
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
@@ -113,7 +112,7 @@ function createEmbed(eventType, payload) {
       if (payload.issue && payload.comment && payload.repository) {
         return {
           title: `New comment on issue: ${payload.issue.title}`,
-          description: payload.comment.body,
+          description: payload.comment.body || "No comment body.",
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
@@ -133,7 +132,7 @@ function createEmbed(eventType, payload) {
           title: `Pull Request ${payload.action}: ${payload.pull_request.title}`,
           description: payload.pull_request.body
             ? payload.pull_request.body.slice(0, 1024)
-            : `🔹No description`,
+            : "🔹No description",
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
@@ -151,7 +150,7 @@ function createEmbed(eventType, payload) {
       if (payload.action && payload.review && payload.repository) {
         return {
           title: `Pull Request Review ${payload.action}`,
-          description: payload.review.body,
+          description: payload.review.body || "No review body.",
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
@@ -169,7 +168,7 @@ function createEmbed(eventType, payload) {
       if (payload.pull_request && payload.comment && payload.repository) {
         return {
           title: `New comment on pull request: ${payload.pull_request.title}`,
-          description: payload.comment.body,
+          description: payload.comment.body || "No comment body.",
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
@@ -259,7 +258,7 @@ function createEmbed(eventType, payload) {
       if (payload.action && payload.release && payload.repository) {
         return {
           title: `Release ${payload.action}: ${payload.release.name}`,
-          description: payload.release.body,
+          description: payload.release.body || "No release body.",
           color: 0x7289da,
           footer: {
             text: `Repository: ${payload.repository.name}`,
@@ -315,6 +314,7 @@ function createEmbed(eventType, payload) {
       );
       return null;
   }
+  return null;
 }
 
 // Function to check BranchStatus and event status
