@@ -18,7 +18,7 @@ const PORT = Port || 40125;
 
 app.use(bodyParser.json());
 
-// Function to send HTTP POST request to Discord webhook
+// Function to send HTTP POST request to Discord webhook 
 function sendDiscordWebhook(payload) {
   const params = JSON.stringify(payload);
   const url = new URL(discordWebhookUrl);
