@@ -5,6 +5,7 @@ module.exports = {
   BranchStatus: true,
   EventStatuses: {
     push: true,
+    push_id: false,
     pull_request: true,
     issues: true,
     issue_comment: true,
